@@ -26,49 +26,68 @@ from random import *
 from numpy import *
 from itertools import *
 
-# funcao principal que inicia o programa e chama 
+# funcao principal que inicia o programa e chama os metodos subsequentes
 
 
 def sudoku():
-    solucao = geraSolucaoAleatoria()
-    pontuacaoSolucao = avaliaSolucao(solucao)
+  solucao = geraSolucaoAleatoria()
+  pontuacaoSolucao = avaliaSolucao(solucao)
 
-    contadorDeRodadas = 0
-    reinicio = pontuacaoSolucao
-    contadorDeReinicio = 0
-    novosTabuleirosGerados = 0
-    while True:
-        contadorDeRodadas += 1
+  #Informações estatisticas
+  contadorDeRodadas = 0
+  reinicio = pontuacaoSolucao
+  contadorDeReinicio = 0
+  novosTabuleirosGerados = 0
+
+  somaDeScoreInicial = pontuacaoSolucao
+  mediaDeScoreInicial = 0
+
+  somaDeScoreTrocaDeTabuleiro = 0
+  mediaDeScoreTrocaDeTabuleiro = 0
+
+  mediaDeScorePorGeracao = 0
+  while True:
+    contadorDeRodadas += 1
+    
+    if pontuacaoSolucao == 0:
+        break
+    
+    novaSolucao = solucao
+    aceitaSolucaoMelhor(novaSolucao)
+
+    pontuacao = avaliaSolucao(novaSolucao)
+
+    if avaliaSolucao(novaSolucao) < pontuacaoSolucao:
+        solucao = novaSolucao
+        pontuacaoSolucao = pontuacao
+
+    #Verifica se ele reiniciou com um novo tabuleiro
+    if(pontuacaoSolucao == reinicio):
+        contadorDeReinicio+=1
+    else:
+        print("Score: ", pontuacaoSolucao,"\n          Solucao ")
+        for i in range(9):
+            print(solucao[i],"\n")
+        print("Rodada Atual: ", contadorDeRodadas, "\n")
+        print("Quantidade de novos tabuleiros Gerados: ", novosTabuleirosGerados, "\n\n \n")
+        print("Media de Score Inicial dos Tabuleiros: ", round(mediaDeScoreInicial,2), "\n\n \n")
+        print("Media de Score na troca de tabuleiro: ", round(mediaDeScoreTrocaDeTabuleiro,2), "\n\n \n")
+        print("Media de melhoria de Score antes da troca de tabuleiro: ", round(mediaDeScorePorGeracao,2), "\n\n \n")
+        reinicio = pontuacaoSolucao
+        contadorDeReinicio = 0
+    #gera um novo tabuleiro se a solucao nao convergir para um score melhor
+    if(contadorDeReinicio >= 500):
+        mediaDeScorePorGeracao = mediaDeScoreInicial - mediaDeScoreTrocaDeTabuleiro
+        somaDeScoreTrocaDeTabuleiro = pontuacaoSolucao + somaDeScoreTrocaDeTabuleiro
+        mediaDeScoreTrocaDeTabuleiro = somaDeScoreTrocaDeTabuleiro / novosTabuleirosGerados
+        solucao = geraSolucaoAleatoria()
+        pontuacaoSolucao = avaliaSolucao(solucao)
+        novosTabuleirosGerados+=1
+        somaDeScoreInicial = pontuacaoSolucao + somaDeScoreInicial
+        mediaDeScoreInicial = somaDeScoreInicial/novosTabuleirosGerados
         
-        if pontuacaoSolucao == 0:
-            break
         
-        novaSolucao = solucao
-        aceitaSolucaoMelhor(novaSolucao)
-
-        pontuacao = avaliaSolucao(novaSolucao)
-
-        if avaliaSolucao(novaSolucao) < pontuacaoSolucao:
-            solucao = novaSolucao
-            pontuacaoSolucao = pontuacao
-
-        #Verifica quanto tempo ele esta parado na mesma pontuacao do score
-        if(pontuacaoSolucao == reinicio):
-            contadorDeReinicio+=1
-        else:
-            print("Score: ", pontuacaoSolucao,"\n          Solucao ")
-            for i in range(9):
-                print(solucao[i],"\n")
-            print("Rodada Atual: ", contadorDeRodadas, "\n")
-            print("Quantidade de novos tabuleiros Gerados: ", novosTabuleirosGerados, "\n\n \n")
-            reinicio = pontuacaoSolucao
-            contadorDeReinicio = 0
-        #gera um novo tabuleiro se a solucao nao convergir para um score melhor
-        if(contadorDeReinicio >= 500):
-            solucao = geraSolucaoAleatoria()
-            pontuacaoSolucao = avaliaSolucao(solucao)
-            novosTabuleirosGerados+=1
-#------------------------- Step 1 Gerar Solucao ----------------------------------------------
+#----------------=======------- Step 1 Gerar Solucao --------------------------------------
             
 # gera solucao aleatoria onde as constantes nao se modificam
 def geraSolucaoAleatoria():
@@ -116,9 +135,9 @@ def geraSolucaoAleatoria():
         tabuleiro.append(linha)
     return tabuleiro
 
-# ------------------------------------- Step 2 Avalia Solucao -----------------------------------
+# ----------------------------- Step 2 Avalia Solucao -----------------------------------
 
-# nesse metodo ele avalia o atual sudoku
+# metodo que avalia o atual sudoku
 def avaliaSolucao(solucao):
 
     contaRepetidosLinha = contaRepetidos(solucao)
@@ -156,6 +175,7 @@ def contaRepetidos(matrizContar):
 
 #separa a matriz 9x9 em 9 blocos 3x3 e faz a soma de cada um deles
 def contaBloco(matriz):
+
     blocosSomados = []
     #separa em 9 blocos
     bloco1 = [matriz[0][0:3], matriz[1][0:3], matriz[2][0:3]]
@@ -168,30 +188,40 @@ def contaBloco(matriz):
     bloco8 = [matriz[6][3:6], matriz[7][3:6], matriz[8][3:6]]
     bloco9 = [matriz[6][6:9], matriz[7][6:9], matriz[8][6:9]]
 
-    #faz a soma de cada bloco e adiciona a lista
-    blocosSomados.append((bloco1))
-    blocosSomados.append((bloco2))
-    blocosSomados.append((bloco3))
-    blocosSomados.append((bloco4))
-    blocosSomados.append((bloco5))
-    blocosSomados.append((bloco6))
-    blocosSomados.append((bloco7))
-    blocosSomados.append((bloco8))
-    blocosSomados.append((bloco9))
 
-    return blocosSomados
+    #faz a soma de cada repetição nos blocos e adiciona a lista
+    blocosSomados.append(somaBloco(bloco1))
+    blocosSomados.append(somaBloco(bloco2))
+    blocosSomados.append(somaBloco(bloco3))
+    blocosSomados.append(somaBloco(bloco4))
+    blocosSomados.append(somaBloco(bloco5))
+    blocosSomados.append(somaBloco(bloco6))
+    blocosSomados.append(somaBloco(bloco7))
+    blocosSomados.append(somaBloco(bloco8))
+    blocosSomados.append(somaBloco(bloco9))
 
-#calcula o valor da 
-def distanciaAteSolucao(linhas,colunas,blocos):
-    linhaSubtraida = 0
-    colunaSubtraida = 0
-    blocoSubtraido = 0
-    for i in range(9):
-        linhaSubtraida = linhaSubtraida + abs(45 - linhas[i])
-        colunaSubtraida = colunaSubtraida + abs(45 - colunas[i])
-        blocoSubtraido = blocoSubtraido + abs(45 - blocos[i])
-    return (linhaSubtraida+colunaSubtraida+blocoSubtraido)
+    return (sum(blocosSomados))
 
+#Calcula a soma dos blocos um a um depois de corver-los em lista
+def somaBloco(lista):
+  somaTotal = 0
+  listaContar= list(chain(*lista))
+  #separa linha a linha e conta o numero de repetidos
+
+  contaRepetidosLinha = {}
+
+  #Adiciona ao dicionario criado
+  for item in listaContar:
+    contaRepetidosLinha[item] = listaContar.count(item)
+
+  tamanhoRepetidos = len(contaRepetidosLinha)
+  listaDosValores = list(contaRepetidosLinha.values())
+
+  #verifico quantas vezes ele esta se repetindo para criar o valor final da funcao
+  for valor in range(tamanhoRepetidos):
+    if (listaDosValores[valor] > 1):
+      somaTotal = somaTotal + listaDosValores[valor] - 1
+  return somaTotal
 
 # sao os indices que nao podem ser mudados ao rodar a funcao
 # de melhor solucao
@@ -204,8 +234,7 @@ def retornaIndicesConstantes():
 # vai para um estado aleatorio e modifica para um
 # valor aleatorio (nao sendo esse uma constante)
 
-
-#-------------------------- Step 3 Aceitar modificações ------------------------
+#-------------------------- Step 3 Aceitar modificações --------------------------------
 
 def aceitaSolucaoMelhor(solucao):
     indicesConstantes = retornaIndicesConstantes()
@@ -223,7 +252,7 @@ def aceitaSolucaoMelhor(solucao):
                 solucao[i][j] = randint(1, 9)
                 break
 
-#--------------------------- Outros (ignorar) ----------------------------------
+#--------------------------- Outros (ignorar) ------------------------------------------
 sudokuPerfeito= [
   [5, 3, 4, 6, 7, 8, 9, 1, 2],
   [6, 7, 2, 1, 9, 5, 3, 4, 8],
