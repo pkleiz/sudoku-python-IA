@@ -72,7 +72,8 @@ def sudoku():
         print("Quantidade de novos tabuleiros Gerados: ", novosTabuleirosGerados, "\n\n \n")
         print("Media de Score Inicial dos Tabuleiros: ", round(mediaDeScoreInicial,2), "\n\n \n")
         print("Media de Score na troca de tabuleiro: ", round(mediaDeScoreTrocaDeTabuleiro,2), "\n\n \n")
-        print("Media de melhoria de Score antes da troca de tabuleiro: ", round(mediaDeScorePorGeracao,2), "\n\n \n")
+        if(mediaDeScorePorGeracao > 0):
+          print("Media de melhoria de Score antes da troca de tabuleiro: ", round(mediaDeScorePorGeracao,2), "\n\n \n")
         reinicio = pontuacaoSolucao
         contadorDeReinicio = 0
     #gera um novo tabuleiro se a solucao nao convergir para um score melhor
