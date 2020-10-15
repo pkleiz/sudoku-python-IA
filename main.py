@@ -24,6 +24,7 @@
 
 from random import *
 from numpy import *
+from itertools import *
 
 # funcao principal que inicia o programa e chama 
 
@@ -119,20 +120,42 @@ def geraSolucaoAleatoria():
 
 # nesse metodo ele avalia o atual sudoku
 def avaliaSolucao(solucao):
-    scannerColuna = []
-    scannerLinha = []
-    scannerBloco = []
-    somaLinhas = sum(solucao, axis=1)
-    somaColunas = sum(solucao, axis=0)
-    somaBlocos = somaBloco(solucao)
-    
-    distancia = distanciaAteSolucao(somaLinhas, somaColunas, somaBlocos)
 
-    return distancia
+    contaRepetidosLinha = contaRepetidos(solucao)
+    #transposição da matriz para pegar os valores da coluna
+    contaRepetidosColuna = ((array(solucao)).transpose())
+    contaRepetidosColuna = contaRepetidos(contaRepetidosColuna.tolist())
+    contaRepetidosBloco = contaBloco(solucao)
+
+
+    return contaRepetidosLinha + contaRepetidosColuna + contaRepetidosBloco
 # objetivo a ser alcancado
 
+# Conta o numero de ocorrencias repetidas linha a linha
+def contaRepetidos(matrizContar):
+  somaTotal = 0
+
+  #separa linha a linha e conta o numero de repetidos
+  for i in range(len(matrizContar[0])):
+    #defino um dicionario vazio onde vou adicionando os valores dos indices
+    contaRepetidosLinha = {}
+
+    #Adiciona ao dicionario criado
+    for item in matrizContar[i]:
+      contaRepetidosLinha[item] = matrizContar[i].count(item)
+    
+    #cria o interador para ser varrido no tamanho da linha da matriz e converte para lista
+    tamanhoRepetidos = len(contaRepetidosLinha)
+    listaDosValores = list(contaRepetidosLinha.values())
+
+    #verifico quantas vezes ele esta se repetindo para criar o valor final da funcao
+    for valor in range(tamanhoRepetidos):
+      if (listaDosValores[valor] > 1):
+        somaTotal = somaTotal + listaDosValores[valor] - 1
+    return somaTotal
+
 #separa a matriz 9x9 em 9 blocos 3x3 e faz a soma de cada um deles
-def somaBloco(matriz):
+def contaBloco(matriz):
     blocosSomados = []
     #separa em 9 blocos
     bloco1 = [matriz[0][0:3], matriz[1][0:3], matriz[2][0:3]]
@@ -146,15 +169,15 @@ def somaBloco(matriz):
     bloco9 = [matriz[6][6:9], matriz[7][6:9], matriz[8][6:9]]
 
     #faz a soma de cada bloco e adiciona a lista
-    blocosSomados.append(sum(sum(bloco1,axis=0)))
-    blocosSomados.append(sum(sum(bloco2,axis=0)))
-    blocosSomados.append(sum(sum(bloco3,axis=0)))
-    blocosSomados.append(sum(sum(bloco4,axis=0)))
-    blocosSomados.append(sum(sum(bloco5,axis=0)))
-    blocosSomados.append(sum(sum(bloco6,axis=0)))
-    blocosSomados.append(sum(sum(bloco7,axis=0)))
-    blocosSomados.append(sum(sum(bloco8,axis=0)))
-    blocosSomados.append(sum(sum(bloco9,axis=0)))
+    blocosSomados.append((bloco1))
+    blocosSomados.append((bloco2))
+    blocosSomados.append((bloco3))
+    blocosSomados.append((bloco4))
+    blocosSomados.append((bloco5))
+    blocosSomados.append((bloco6))
+    blocosSomados.append((bloco7))
+    blocosSomados.append((bloco8))
+    blocosSomados.append((bloco9))
 
     return blocosSomados
 
